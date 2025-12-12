@@ -1,0 +1,11 @@
+Sl. No.,District,Public Hospitals,Private Hospitals,Total Hospitals,Public-Private Ratio (%),Performance Category,Review Sentiment
+1,Amritsar,13,77,90,14.44,Low Public Share,Negative
+2,Barnala,6,7,13,46.15,Moderate Public Share,Neutral
+3,Bathinda,15,72,87,17.24,Low Public Share,Negative
+4,Faridkot,6,11,17,35.29,Low Public Share,Negative
+5,Fatehgarh Sahib,7,7,14,50,Moderate Public Share,Neutral
+6,Fazilka,6,8,14,42.86,Moderate Public Share,Neutral
+7,Firozepur,7,11,18,38.89,Low Public Share,Negative
+8,Gurdaspur,12,25,37,32.43,Low Public Share,Negative
+9,Hoshiarpur,15,6,21,71.43,High Public Share,Positive
+10,Jalandhar,15,49,64,23.44,Low Public Share,Negative
