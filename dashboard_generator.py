@@ -10,6 +10,18 @@ health_campaign = pd.read_csv('Health_Campaign_Dataset_50.csv')
 disability_district = pd.read_csv('HH_Disability_District.csv')
 disability_state = pd.read_csv('HH_Disability_State.csv')
 awareness = pd.read_csv('XX_Awareness_On_HIV_AIDS_RTI_STI_HAF_ORS_ORT_ZINC_And_ARI_Pneumonia_District.csv')
+events = pd.read_csv('events .csv')
+webinars = pd.read_csv('wedner data set .csv')
+hospitals = pd.read_csv('private hosipitals.csv')
+
+# Clean column names (remove leading/trailing spaces)
+health_campaign.columns = health_campaign.columns.str.strip()
+disability_district.columns = disability_district.columns.str.strip()
+disability_state.columns = disability_state.columns.str.strip()
+awareness.columns = awareness.columns.str.strip()
+events.columns = events.columns.str.strip()
+webinars.columns = webinars.columns.str.strip()
+hospitals.columns = hospitals.columns.str.strip()
 
 # Store all chart data
 charts_data = []
@@ -291,6 +303,173 @@ fig11.update_layout(
 )
 charts_data.append(('awareness_heatmap', fig11.to_html(full_html=False, include_plotlyjs='cdn')))
 
+# ============= EVENTS ANALYSIS =============
+
+# 12. Events Timeline by Category
+events_timeline = events.groupby(['Month', 'Category']).size().reset_index(name='Count')
+fig12 = px.line(events_timeline, x='Month', y='Count', color='Category',
+                markers=True, title='Health Events Timeline by Category')
+fig12.update_layout(
+    template='plotly_white',
+    height=400,
+    xaxis_title='Month',
+    yaxis_title='Number of Events'
+)
+charts_data.append(('events_timeline', fig12.to_html(full_html=False, include_plotlyjs='cdn')))
+
+# 13. Events Sentiment Distribution
+sentiment_counts = events['Sentiment'].value_counts()
+fig13 = go.Figure(data=[go.Pie(
+    labels=sentiment_counts.index,
+    values=sentiment_counts.values,
+    hole=0.4,
+    marker=dict(colors=['#2ecc71', '#3498db', '#e74c3c'])
+)])
+fig13.update_layout(
+    title='Events Sentiment Distribution',
+    template='plotly_white',
+    height=400
+)
+charts_data.append(('events_sentiment', fig13.to_html(full_html=False, include_plotlyjs='cdn')))
+
+# 14. Events by Scheme
+scheme_counts = events['Scheme'].value_counts().head(10)
+fig14 = go.Figure(data=[go.Bar(
+    x=scheme_counts.values,
+    y=scheme_counts.index,
+    orientation='h',
+    marker_color='#9b59b6'
+)])
+fig14.update_layout(
+    title='Top 10 Health Schemes by Event Count',
+    xaxis_title='Number of Events',
+    yaxis_title='Scheme',
+    template='plotly_white',
+    height=450
+)
+charts_data.append(('events_by_scheme', fig14.to_html(full_html=False, include_plotlyjs='cdn')))
+
+# ============= WEBINARS & TRAINING ANALYSIS =============
+
+# 15. Webinar/Training Event Types Distribution
+event_type_counts = webinars['Category'].value_counts()
+fig15 = go.Figure(data=[go.Pie(
+    labels=event_type_counts.index,
+    values=event_type_counts.values,
+    marker=dict(colors=['#e74c3c', '#3498db', '#2ecc71', '#f39c12', '#9b59b6'])
+)])
+fig15.update_layout(
+    title='Distribution of Training Events by Type',
+    template='plotly_white',
+    height=400
+)
+charts_data.append(('webinar_types', fig15.to_html(full_html=False, include_plotlyjs='cdn')))
+
+# 16. Focus Area Analysis
+focus_area_counts = webinars['Focus Area'].value_counts()
+fig16 = go.Figure(data=[go.Bar(
+    x=focus_area_counts.index,
+    y=focus_area_counts.values,
+    marker_color='#16a085'
+)])
+fig16.update_layout(
+    title='Training Events by Focus Area',
+    xaxis_title='Focus Area',
+    yaxis_title='Number of Events',
+    template='plotly_white',
+    height=400,
+    xaxis={'tickangle': -45}
+)
+charts_data.append(('focus_area_distribution', fig16.to_html(full_html=False, include_plotlyjs='cdn')))
+
+# 17. Mode of Delivery Analysis
+mode_counts = webinars['Mode'].value_counts()
+fig17 = go.Figure(data=[go.Funnel(
+    y=mode_counts.index,
+    x=mode_counts.values,
+    textinfo="value+percent initial",
+    marker=dict(color=['#3498db', '#e74c3c', '#2ecc71'])
+)])
+fig17.update_layout(
+    title='Event Delivery Mode Distribution',
+    template='plotly_white',
+    height=400
+)
+charts_data.append(('delivery_mode', fig17.to_html(full_html=False, include_plotlyjs='cdn')))
+
+# ============= HOSPITAL ANALYSIS =============
+
+# 18. Public vs Private Hospital Comparison
+fig18 = go.Figure()
+fig18.add_trace(go.Bar(
+    x=hospitals['District'],
+    y=hospitals['Public Hospitals'],
+    name='Public Hospitals',
+    marker_color='#2ecc71'
+))
+fig18.add_trace(go.Bar(
+    x=hospitals['District'],
+    y=hospitals['Private Hospitals'],
+    name='Private Hospitals',
+    marker_color='#e74c3c'
+))
+fig18.update_layout(
+    title='Public vs Private Hospitals by District',
+    xaxis_title='District',
+    yaxis_title='Number of Hospitals',
+    barmode='group',
+    template='plotly_white',
+    height=450,
+    xaxis={'tickangle': -45}
+)
+charts_data.append(('hospital_comparison', fig18.to_html(full_html=False, include_plotlyjs='cdn')))
+
+# 19. Performance Category Distribution
+performance_counts = hospitals['Performance Category'].value_counts()
+fig19 = go.Figure(data=[go.Bar(
+    x=performance_counts.index,
+    y=performance_counts.values,
+    marker=dict(
+        color=performance_counts.values,
+        colorscale='RdYlGn',
+        showscale=True
+    )
+)])
+fig19.update_layout(
+    title='Hospital Performance Categories',
+    xaxis_title='Performance Category',
+    yaxis_title='Number of Districts',
+    template='plotly_white',
+    height=400
+)
+charts_data.append(('performance_categories', fig19.to_html(full_html=False, include_plotlyjs='cdn')))
+
+# 20. Public-Private Ratio Analysis
+fig20 = go.Figure(data=[go.Scatter(
+    x=hospitals['District'],
+    y=hospitals['Public-Private Ratio (%)'],
+    mode='markers+lines',
+    marker=dict(
+        size=hospitals['Total Hospitals'] / 2,
+        color=hospitals['Public-Private Ratio (%)'],
+        colorscale='Viridis',
+        showscale=True,
+        colorbar=dict(title="Ratio %")
+    ),
+    text=hospitals['District'],
+    hovertemplate='<b>%{text}</b><br>Ratio: %{y:.1f}%<br>Total: ' + 
+                  hospitals['Total Hospitals'].astype(str) + '<extra></extra>'
+)])
+fig20.update_layout(
+    title='Public-Private Hospital Ratio by District',
+    xaxis_title='District',
+    yaxis_title='Public-Private Ratio (%)',
+    template='plotly_white',
+    height=450,
+    xaxis={'tickangle': -45}
+)
+charts_data.append(('hospital_ratio', fig20.to_html(full_html=False, include_plotlyjs='cdn')))
+
 # ============= SUMMARY STATISTICS =============
 
 # Calculate key metrics
@@ -300,6 +479,10 @@ avg_behavior_change = health_campaign['Behavior Change (%)'].mean()
 avg_feedback = health_campaign['Feedback Score'].mean()
 avg_disability_rate = disability_state['HH_Prevalence_Of_Any_Type_Of_Disability_Per_100000_Population_Person_Total'].mean()
 avg_hiv_awareness = awareness['XX_Women_Who_Are_Aware_Of_Hiv_Aids_Total'].mean()
+total_events = len(events)
+total_webinars = len(webinars)
+total_hospitals = hospitals['Total Hospitals'].sum()
+avg_public_ratio = hospitals['Public-Private Ratio (%)'].mean()
 
 summary_stats = {
     'total_impressions': f"{total_impressions:,}",
@@ -308,6 +491,10 @@ summary_stats = {
     'avg_feedback': f"{avg_feedback:.2f}",
     'avg_disability_rate': f"{avg_disability_rate:.1f}",
     'avg_hiv_awareness': f"{avg_hiv_awareness:.1f}%",
+    'total_events': f"{total_events}",
+    'total_webinars': f"{total_webinars}",
+    'total_hospitals': f"{total_hospitals}",
+    'avg_public_ratio': f"{avg_public_ratio:.1f}%",
     'total_districts': len(disability_district),
     'total_states': len(disability_state)
 }
@@ -360,6 +547,21 @@ html_content = f"""<!DOCTYPE html>
         <button class="nav-btn" onclick="showChart('state_awareness')">State Awareness</button>
         <button class="nav-btn" onclick="showChart('rural_urban_awareness')">Rural vs Urban</button>
         <button class="nav-btn" onclick="showChart('awareness_heatmap')">Awareness Heatmap</button>
+        
+        <div class="nav-category">Events & Programs</div>
+        <button class="nav-btn" onclick="showChart('events_timeline')">Events Timeline</button>
+        <button class="nav-btn" onclick="showChart('events_sentiment')">Events Sentiment</button>
+        <button class="nav-btn" onclick="showChart('events_by_scheme')">Events by Scheme</button>
+        
+        <div class="nav-category">Webinars & Training</div>
+        <button class="nav-btn" onclick="showChart('webinar_types')">Event Types</button>
+        <button class="nav-btn" onclick="showChart('focus_area_distribution')">Focus Areas</button>
+        <button class="nav-btn" onclick="showChart('delivery_mode')">Delivery Mode</button>
+        
+        <div class="nav-category">Hospital Infrastructure</div>
+        <button class="nav-btn" onclick="showChart('hospital_comparison')">Public vs Private</button>
+        <button class="nav-btn" onclick="showChart('performance_categories')">Performance Categories</button>
+        <button class="nav-btn" onclick="showChart('hospital_ratio')">Hospital Ratio</button>
     </div>
 
     <div class="main-content">
@@ -397,7 +599,27 @@ html_content = f"""<!DOCTYPE html>
                 <div class="stat-label">HIV/AIDS Awareness</div>
             </div>
             <div class="stat-card">
-                <div class="stat-icon">🗺️</div>
+                <div class="stat-icon">�</div>
+                <div class="stat-value">{summary_stats['total_events']}</div>
+                <div class="stat-label">Health Events</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">🎓</div>
+                <div class="stat-value">{summary_stats['total_webinars']}</div>
+                <div class="stat-label">Training Programs</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">🏥</div>
+                <div class="stat-value">{summary_stats['total_hospitals']}</div>
+                <div class="stat-label">Total Hospitals</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">📊</div>
+                <div class="stat-value">{summary_stats['avg_public_ratio']}</div>
+                <div class="stat-label">Avg Public Ratio</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">�🗺️</div>
                 <div class="stat-value">{summary_stats['total_states']}</div>
                 <div class="stat-label">States Covered</div>
             </div>
@@ -463,6 +685,51 @@ html_content = f"""<!DOCTYPE html>
             <h3 class="chart-title">🎗️ Health Awareness Heatmap</h3>
             {charts_data[10][1]}
         </div>
+        
+        <div class="chart-container chart-item" id="events_timeline" style="display: none;">
+            <h3 class="chart-title">📅 Health Events Timeline by Category</h3>
+            {charts_data[11][1]}
+        </div>
+        
+        <div class="chart-container chart-item" id="events_sentiment" style="display: none;">
+            <h3 class="chart-title">📅 Events Sentiment Distribution</h3>
+            {charts_data[12][1]}
+        </div>
+        
+        <div class="chart-container chart-item" id="events_by_scheme" style="display: none;">
+            <h3 class="chart-title">📅 Top Health Schemes by Event Count</h3>
+            {charts_data[13][1]}
+        </div>
+        
+        <div class="chart-container chart-item" id="webinar_types" style="display: none;">
+            <h3 class="chart-title">🎓 Training Event Types Distribution</h3>
+            {charts_data[14][1]}
+        </div>
+        
+        <div class="chart-container chart-item" id="focus_area_distribution" style="display: none;">
+            <h3 class="chart-title">🎓 Training Events by Focus Area</h3>
+            {charts_data[15][1]}
+        </div>
+        
+        <div class="chart-container chart-item" id="delivery_mode" style="display: none;">
+            <h3 class="chart-title">🎓 Event Delivery Mode Distribution</h3>
+            {charts_data[16][1]}
+        </div>
+        
+        <div class="chart-container chart-item" id="hospital_comparison" style="display: none;">
+            <h3 class="chart-title">🏥 Public vs Private Hospitals by District</h3>
+            {charts_data[17][1]}
+        </div>
+        
+        <div class="chart-container chart-item" id="performance_categories" style="display: none;">
+            <h3 class="chart-title">🏥 Hospital Performance Categories</h3>
+            {charts_data[18][1]}
+        </div>
+        
+        <div class="chart-container chart-item" id="hospital_ratio" style="display: none;">
+            <h3 class="chart-title">🏥 Public-Private Hospital Ratio Analysis</h3>
+            {charts_data[19][1]}
+        </div>
 
         <!-- Insights Section -->
         <section class="section insights">
@@ -484,7 +751,16 @@ html_content = f"""<!DOCTYPE html>
                     <h3>Rural-Urban Gap</h3>
                     <p>Significant awareness gaps exist between rural and urban areas, particularly in HIV/AIDS awareness, indicating the need for targeted rural outreach programs.</p>
                 </div>
+                <div class="insight-card">
+                    <h3>Digital Health Adoption</h3>
+                    <p>ABDM and PM-JAY programs show strong momentum with positive sentiment across events. Online and hybrid training modes dominate capacity building efforts.</p>
+                </div>
+                <div class="insight-card">
+                    <h3>Hospital Infrastructure</h3>
+                    <p>Significant imbalance exists between public and private hospitals in most districts. Low public share categories require immediate infrastructure investment.</p>
+                </div>
             </div>
+        </section>
         </section>
     </div>
     </div>
